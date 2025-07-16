@@ -5,12 +5,15 @@ import {
   Snowflake, 
   Apple, 
   X, 
-  Camera 
+  Camera,
+  Sun,
+  Home
 } from "lucide-react";
 
 export const TASK_ICONS = {
   drink_gallon_water: Droplet,
-  two_workouts: Dumbbell,
+  workout_a: Home,
+  workout_b_outside: Sun,
   read_ten_pages: BookOpen,
   five_min_cold_shower: Snowflake,
   follow_diet: Apple,
@@ -20,7 +23,8 @@ export const TASK_ICONS = {
 
 export const TASK_NAMES = {
   drink_gallon_water: "Drink 1 Gallon Water",
-  two_workouts: "Two 45-Min Workouts",
+  workout_a: "Workout A (45 min)",
+  workout_b_outside: "Workout B (Outside - 45 min)",
   read_ten_pages: "Read 10 Pages",
   five_min_cold_shower: "5-Min Cold Shower",
   follow_diet: "Follow Diet",

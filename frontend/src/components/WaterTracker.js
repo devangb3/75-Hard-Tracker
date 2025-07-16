@@ -16,7 +16,7 @@ const WaterTracker = ({ progress, onWaterIncrement }) => {
 
   return (
     <div
-      className={`p-4 rounded-lg border-2 transition-all duration-200 cursor-default ${
+      className={`p-4 rounded-lg border-2 transition-all duration-200 cursor-default min-w-[260px] w-full ${
         waterComplete
           ? 'border-green-200 bg-green-50'
           : 'border-blue-100 bg-blue-50'
@@ -41,8 +41,15 @@ const WaterTracker = ({ progress, onWaterIncrement }) => {
           <Circle className="text-blue-400" size={24} />
         )}
       </div>
-      <div className="flex items-center gap-2 mb-2">
-        <div className="flex gap-2">
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <div className="flex gap-2 flex-wrap">
+          <button
+            className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+            onClick={() => handleIncrement(35)}
+            disabled={(currentWater + 35) > WATER_GOAL_ML}
+          >
+            +35ml
+          </button>
           <button
             className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
             onClick={() => handleIncrement(250)}
@@ -65,7 +72,7 @@ const WaterTracker = ({ progress, onWaterIncrement }) => {
             +1000ml
           </button>
         </div>
-        <span className="ml-4 text-blue-700 font-semibold">
+        <span className="text-blue-700 font-semibold whitespace-nowrap text-sm text-right flex-shrink-0">
           {currentWater} / {WATER_GOAL_ML}ml
         </span>
       </div>

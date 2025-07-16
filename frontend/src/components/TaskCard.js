@@ -1,9 +1,10 @@
 import React from 'react';
-import { CheckCircle, Circle } from 'lucide-react';
+import { CheckCircle, Circle, Dumbbell } from 'lucide-react';
 import { TASK_ICONS, TASK_NAMES } from '../constants/tasks';
 
 const TaskCard = ({ task, completed, onClick }) => {
-  const Icon = TASK_ICONS[task];
+  const Icon = TASK_ICONS[task] || Dumbbell;
+  const taskName = TASK_NAMES[task] || task;
   
   return (
     <div
@@ -24,7 +25,7 @@ const TaskCard = ({ task, completed, onClick }) => {
           <p className={`font-medium ${
             completed ? 'text-green-800' : 'text-gray-900'
           }`}>
-            {TASK_NAMES[task]}
+            {taskName}
           </p>
         </div>
         {completed ? (

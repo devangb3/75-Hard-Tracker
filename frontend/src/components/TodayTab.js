@@ -1,5 +1,5 @@
 import React from 'react';
-import { Target, Flame, Trophy, TrendingUp } from 'lucide-react';
+import { Target, Flame, Trophy, TrendingUp, Dumbbell } from 'lucide-react';
 import WaterTracker from './WaterTracker';
 import TaskCard from './TaskCard';
 import { 
@@ -73,14 +73,18 @@ const TodayTab = ({ progress, stats, onTaskChange, onWaterIncrement }) => {
             Still to do today:
           </h3>
           <div className="space-y-2">
-            {remainingTasks.map((task) => (
-              <div key={task} className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg">
-                <div className="p-1.5 rounded bg-orange-100">
-                  {React.createElement(TASK_ICONS[task], { size: 16, className: "text-orange-600" })}
+            {remainingTasks.map((task) => {
+              const Icon = TASK_ICONS[task] || Dumbbell;
+              const taskName = TASK_NAMES[task] || task;
+              return (
+                <div key={task} className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg">
+                  <div className="p-1.5 rounded bg-orange-100">
+                    {React.createElement(Icon, { size: 16, className: "text-orange-600" })}
+                  </div>
+                  <span className="text-orange-800 font-medium">{taskName}</span>
                 </div>
-                <span className="text-orange-800 font-medium">{TASK_NAMES[task]}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

@@ -32,7 +32,8 @@ class Config:
     # Task Configuration
     TASK_NAMES = {
         "drink_gallon_water": "Drink 1 Gallon Water",
-        "two_workouts": "Two 45-Min Workouts",
+        "workout_a": "Workout A (45 min)",
+        "workout_b_outside": "Workout B (Outside - 45 min)",
         "read_ten_pages": "Read 10 Pages",
         "five_min_cold_shower": "5-Min Cold Shower",
         "follow_diet": "Follow Diet",
@@ -42,7 +43,8 @@ class Config:
     
     DEFAULT_TASKS = {
         "drink_gallon_water": 0,
-        "two_workouts": False,
+        "workout_a": False,
+        "workout_b_outside": False,
         "read_ten_pages": False,
         "five_min_cold_shower": False,
         "follow_diet": False,

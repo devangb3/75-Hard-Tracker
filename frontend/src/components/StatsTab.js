@@ -4,7 +4,8 @@ import {
   CheckCircle, 
   Flame, 
   Trophy, 
-  BarChart3 
+  BarChart3,
+  Dumbbell
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatDate } from '../utils/helpers';
@@ -71,7 +72,7 @@ const StatsTab = ({ stats, history }) => {
         </h3>
         <div className="space-y-4">
           {Object.entries(stats.task_stats).map(([taskKey, taskStat]) => {
-            const Icon = TASK_ICONS[taskKey];
+            const Icon = TASK_ICONS[taskKey] || Dumbbell;
             return (
               <div key={taskKey} className="flex items-center gap-4">
                 <div className="p-2 bg-gray-100 rounded-lg">
