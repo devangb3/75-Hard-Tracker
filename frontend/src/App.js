@@ -82,13 +82,37 @@ function App() {
         tasks: newTasks,
       });
       setProgress({ ...progress, tasks: newTasks });
-      // Refresh stats after update
       const statsRes = await axios.get('http://localhost:5000/progress/stats');
       setStats(statsRes.data);
     } catch (error) {
       console.error("Error updating progress:", error);
     }
   };
+
+  // Add water increment handler
+  const handleWaterIncrement = async (amount) => {
+    if (!progress) return;
+    const current = progress.tasks.drink_gallon_water || 0;
+    if (current >= 3785) return;
+    try {
+      const res = await axios.post(`http://localhost:5000/progress/${date}/water`, { amount });
+      const newWater = res.data.water;
+      setProgress({
+        ...progress,
+        tasks: {
+          ...progress.tasks,
+          drink_gallon_water: newWater
+        }
+      });
+      const statsRes = await axios.get('http://localhost:5000/progress/stats');
+      setStats(statsRes.data);
+    } catch (error) {
+      console.error("Error incrementing water:", error);
+    }
+  };
+
+  // Helper for water completion
+  const isWaterComplete = () => (progress?.tasks?.drink_gallon_water || 0) >= 3785;
 
   const getCompletedTasksCount = () => {
     if (!progress) return 0;
@@ -216,40 +240,105 @@ function App() {
 
               {/* Tasks Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.entries(progress.tasks).map(([task, completed]) => {
-                  const Icon = taskIcons[task];
-                  return (
-                    <div
-                      key={task}
-                      onClick={() => handleTaskChange(task)}
-                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
-                        completed
-                          ? 'border-green-200 bg-green-50'
-                          : 'border-gray-200 bg-white hover:border-blue-200 hover:bg-blue-50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg ${
-                          completed ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'
-                        }`}>
-                          <Icon size={20} />
-                        </div>
-                        <div className="flex-1">
-                          <p className={`font-medium ${
-                            completed ? 'text-green-800' : 'text-gray-900'
-                          }`}>
-                            {taskNames[task]}
-                          </p>
-                        </div>
-                        {completed ? (
-                          <CheckCircle className="text-green-600" size={24} />
-                        ) : (
-                          <Circle className="text-gray-400" size={24} />
-                        )}
-                      </div>
+                {/* Water tracker special UI */}
+                <div
+                  className={`p-4 rounded-lg border-2 transition-all duration-200 cursor-default ${
+                    isWaterComplete()
+                      ? 'border-green-200 bg-green-50'
+                      : 'border-blue-100 bg-blue-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className={`p-2 rounded-lg ${
+                      isWaterComplete() ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'
+                    }`}>
+                      <Droplet size={20} />
                     </div>
-                  );
-                })}
+                    <div className="flex-1">
+                      <p className={`font-medium ${
+                        isWaterComplete() ? 'text-green-800' : 'text-gray-900'
+                      }`}>
+                        Drink 1 Gallon Water
+                      </p>
+                    </div>
+                    {isWaterComplete() ? (
+                      <CheckCircle className="text-green-600" size={24} />
+                    ) : (
+                      <Circle className="text-blue-400" size={24} />
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex gap-2">
+                      <button
+                        className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+                        onClick={() => handleWaterIncrement(250)}
+                        disabled={(progress?.tasks?.drink_gallon_water || 0) + 250 > 3785}
+                      >
+                        +250ml
+                      </button>
+                      <button
+                        className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+                        onClick={() => handleWaterIncrement(500)}
+                        disabled={(progress?.tasks?.drink_gallon_water || 0) + 500 > 3785}
+                      >
+                        +500ml
+                      </button>
+                      <button
+                        className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+                        onClick={() => handleWaterIncrement(1000)}
+                        disabled={(progress?.tasks?.drink_gallon_water || 0) + 1000 > 3785}
+                      >
+                        +1000ml
+                      </button>
+                    </div>
+                    <span className="ml-4 text-blue-700 font-semibold">
+                      {progress?.tasks?.drink_gallon_water || 0} / 3785ml
+                    </span>
+                  </div>
+                  <div className="w-full h-2 bg-blue-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-blue-500 transition-all duration-300"
+                      style={{ width: `${Math.min((progress?.tasks?.drink_gallon_water || 0) / 1000 * 100, 100)}%` }}
+                    ></div>
+                  </div>
+                </div>
+                {/* Other tasks */}
+                {Object.entries(progress.tasks)
+                  .filter(([task]) => task !== 'drink_gallon_water')
+                  .map(([task, completed]) => {
+                    const Icon = taskIcons[task];
+                    return (
+                      <div
+                        key={task}
+                        onClick={() => handleTaskChange(task)}
+                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                          completed
+                            ? 'border-green-200 bg-green-50'
+                            : 'border-gray-200 bg-white hover:border-blue-200 hover:bg-blue-50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-lg ${
+                            completed ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'
+                          }`}>
+                            <Icon size={20} />
+                          </div>
+                          <div className="flex-1">
+                            <p className={`font-medium ${
+                              completed ? 'text-green-800' : 'text-gray-900'
+                            }`}>
+                              {taskNames[task]}
+                            </p>
+                          </div>
+                          {completed ? (
+                            <CheckCircle className="text-green-600" size={24} />
+                          ) : (
+                            <Circle className="text-gray-400" size={24} />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
               </div>
             </div>
 

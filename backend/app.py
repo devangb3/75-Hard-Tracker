@@ -67,7 +67,13 @@ def get_stats():
     
     # Calculate stats
     total_days = len(all_progress)
-    completed_days = sum(1 for day in all_progress if all(day["tasks"].values()))
+    def is_day_complete(day):
+        tasks = day["tasks"].copy()
+        # Water is complete if >= 3785ml
+        if isinstance(tasks.get("drink_gallon_water"), int):
+            tasks["drink_gallon_water"] = tasks["drink_gallon_water"] >= 3785
+        return all(tasks.values())
+    completed_days = sum(1 for day in all_progress if is_day_complete(day))
     
     # Calculate streaks
     sorted_days = sorted(all_progress, key=lambda x: x["date"])
@@ -76,7 +82,7 @@ def get_stats():
     temp_streak = 0
     
     for day in sorted_days:
-        if all(day["tasks"].values()):
+        if is_day_complete(day):
             temp_streak += 1
             longest_streak = max(longest_streak, temp_streak)
         else:
@@ -84,7 +90,7 @@ def get_stats():
     
     # Check current streak (from most recent day)
     for day in reversed(sorted_days):
-        if all(day["tasks"].values()):
+        if is_day_complete(day):
             current_streak += 1
         else:
             break
@@ -92,7 +98,7 @@ def get_stats():
     # Calculate task-specific stats
     task_stats = {}
     task_names = {
-        "drink_gallon_water": "Drink 1 Gallon Water",
+        "drink_gallon_water": "Drink 1 Liter Water",
         "two_workouts": "Two 45-Min Workouts",
         "read_ten_pages": "Read 10 Pages",
         "five_min_cold_shower": "5-Min Cold Shower",
@@ -102,7 +108,10 @@ def get_stats():
     }
     
     for task_key, task_name in task_names.items():
-        completed_count = sum(1 for day in all_progress if day["tasks"].get(task_key, False))
+        if task_key == "drink_gallon_water":
+            completed_count = sum(1 for day in all_progress if isinstance(day["tasks"].get(task_key), int) and day["tasks"][task_key] >= 3785)
+        else:
+            completed_count = sum(1 for day in all_progress if day["tasks"].get(task_key, False))
         task_stats[task_key] = {
             "name": task_name,
             "completed": completed_count,
@@ -133,7 +142,7 @@ def get_progress_by_date(date):
         new_progress = {
             "date": date,
             "tasks": {
-                "drink_gallon_water": False,
+                "drink_gallon_water": 0,
                 "two_workouts": False,
                 "read_ten_pages": False,
                 "five_min_cold_shower": False,
@@ -152,8 +161,29 @@ def update_progress(date):
     Updates the progress for a specific date.
     """
     data = request.get_json()
+    # Clamp water to 1000ml max if present
+    if "drink_gallon_water" in data["tasks"]:
+        val = data["tasks"]["drink_gallon_water"]
+        if isinstance(val, int):
+            data["tasks"]["drink_gallon_water"] = min(val, 3785)
     collection.update_one({"date": date}, {"$set": {"tasks": data["tasks"]}})
     return jsonify({"message": "Progress updated successfully"})
+
+@app.route("/progress/<date>/water", methods=["POST"])
+def increment_water(date):
+    """
+    Increment water intake for a specific date by a given amount (ml).
+    Body: { "amount": 250 }
+    """
+    data = request.get_json()
+    amount = int(data.get("amount", 0))
+    progress = collection.find_one({"date": date})
+    if not progress:
+        return jsonify({"error": "No progress for this date"}), 404
+    current = progress["tasks"].get("drink_gallon_water", 0)
+    new_value = min(current + amount, 3785)
+    collection.update_one({"date": date}, {"$set": {"tasks.drink_gallon_water": new_value}})
+    return jsonify({"water": new_value})
 
 if __name__ == "__main__":
     app.run(debug=True)
