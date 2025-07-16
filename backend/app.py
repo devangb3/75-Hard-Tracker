@@ -6,7 +6,13 @@ import datetime
 from datetime import timedelta
 
 app = Flask(__name__)
-CORS(app)
+
+# Configure CORS more specifically
+CORS(app, 
+     origins=["http://localhost:6896", "http://127.0.0.1:6896"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+     allow_headers=["Content-Type", "Authorization"],
+     supports_credentials=True)
 
 
 MONGO_URI = "mongodb://localhost:27017/"
@@ -186,4 +192,4 @@ def increment_water(date):
     return jsonify({"water": new_value})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=8917)

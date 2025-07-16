@@ -52,9 +52,9 @@ function App() {
     setLoading(true);
     try {
       const [progressRes, historyRes, statsRes] = await Promise.all([
-        axios.get(`http://localhost:5000/progress/${date}`),
-        axios.get('http://localhost:5000/progress/history'),
-        axios.get('http://localhost:5000/progress/stats')
+        axios.get(`http://localhost:8917/progress/${date}`),
+        axios.get('http://localhost:8917/progress/history'),
+        axios.get('http://localhost:8917/progress/stats')
       ]);
       
       setProgress(progressRes.data);
@@ -78,11 +78,11 @@ function App() {
   const handleTaskChange = async (task) => {
     const newTasks = { ...progress.tasks, [task]: !progress.tasks[task] };
     try {
-      await axios.put(`http://localhost:5000/progress/${date}`, {
+      await axios.put(`http://localhost:8917/progress/${date}`, {
         tasks: newTasks,
       });
       setProgress({ ...progress, tasks: newTasks });
-      const statsRes = await axios.get('http://localhost:5000/progress/stats');
+      const statsRes = await axios.get('http://localhost:8917/progress/stats');
       setStats(statsRes.data);
     } catch (error) {
       console.error("Error updating progress:", error);
@@ -95,7 +95,7 @@ function App() {
     const current = progress.tasks.drink_gallon_water || 0;
     if (current >= 3785) return;
     try {
-      const res = await axios.post(`http://localhost:5000/progress/${date}/water`, { amount });
+      const res = await axios.post(`http://localhost:8917/progress/${date}/water`, { amount });
       const newWater = res.data.water;
       setProgress({
         ...progress,
@@ -104,7 +104,7 @@ function App() {
           drink_gallon_water: newWater
         }
       });
-      const statsRes = await axios.get('http://localhost:5000/progress/stats');
+      const statsRes = await axios.get('http://localhost:8917/progress/stats');
       setStats(statsRes.data);
     } catch (error) {
       console.error("Error incrementing water:", error);
@@ -115,12 +115,12 @@ function App() {
   const isWaterComplete = () => (progress?.tasks?.drink_gallon_water || 0) >= 3785;
 
   const getCompletedTasksCount = () => {
-    if (!progress) return 0;
+    if (!progress || !progress.tasks) return 0;
     return Object.values(progress.tasks).filter(Boolean).length;
   };
 
   const getTotalTasksCount = () => {
-    if (!progress) return 0;
+    if (!progress || !progress.tasks) return 0;
     return Object.keys(progress.tasks).length;
   };
 
@@ -134,12 +134,12 @@ function App() {
   };
 
   const getCompletionRate = () => {
-    if (!progress) return 0;
+    if (!progress || !progress.tasks) return 0;
     return Math.round((getCompletedTasksCount() / getTotalTasksCount()) * 100);
   };
 
   const getRemainingTasks = () => {
-    if (!progress) return [];
+    if (!progress || !progress.tasks) return [];
     return Object.entries(progress.tasks)
       .filter(([_, completed]) => !completed)
       .map(([task, _]) => task);
@@ -149,6 +149,15 @@ function App() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  // Don't render main content if progress is still null
+  if (!progress || !progress.tasks) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-gray-600">Loading...</div>
       </div>
     );
   }
@@ -272,21 +281,21 @@ function App() {
                       <button
                         className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
                         onClick={() => handleWaterIncrement(250)}
-                        disabled={(progress?.tasks?.drink_gallon_water || 0) + 250 > 3785}
+                        disabled={((progress?.tasks?.drink_gallon_water || 0) + 250) > 3785}
                       >
                         +250ml
                       </button>
                       <button
                         className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
                         onClick={() => handleWaterIncrement(500)}
-                        disabled={(progress?.tasks?.drink_gallon_water || 0) + 500 > 3785}
+                        disabled={((progress?.tasks?.drink_gallon_water || 0) + 500) > 3785}
                       >
                         +500ml
                       </button>
                       <button
                         className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
                         onClick={() => handleWaterIncrement(1000)}
-                        disabled={(progress?.tasks?.drink_gallon_water || 0) + 1000 > 3785}
+                        disabled={((progress?.tasks?.drink_gallon_water || 0) + 1000) > 3785}
                       >
                         +1000ml
                       </button>
@@ -298,7 +307,7 @@ function App() {
                   <div className="w-full h-2 bg-blue-100 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-blue-500 transition-all duration-300"
-                      style={{ width: `${Math.min((progress?.tasks?.drink_gallon_water || 0) / 1000 * 100, 100)}%` }}
+                      style={{ width: `${Math.min(((progress?.tasks?.drink_gallon_water || 0) / 3785) * 100, 100)}%` }}
                     ></div>
                   </div>
                 </div>
