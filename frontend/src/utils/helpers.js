@@ -1,6 +1,16 @@
 import { WATER_GOAL_ML } from '../constants/tasks';
 
 export const formatDate = (dateString) => {
+  if (typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const [year, month, day] = dateString.split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'short', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  }
+  
   const date = new Date(dateString);
   return date.toLocaleDateString('en-US', { 
     weekday: 'short', 
