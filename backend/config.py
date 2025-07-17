@@ -11,7 +11,8 @@ class Config:
     # CORS Configuration
     CORS_ORIGINS = [
         "http://localhost:6896",
-        "http://127.0.0.1:6896"
+        "http://127.0.0.1:6896",
+        "https://hard-tracker-frontend-75-424176252593.us-west1.run.app"
     ]
     CORS_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     CORS_HEADERS = ["Content-Type", "Authorization"]

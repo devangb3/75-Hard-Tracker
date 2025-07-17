@@ -5,6 +5,10 @@ from services.stats_service import StatsService
 # Create blueprint for progress routes
 progress_bp = Blueprint('progress', __name__)
 
+@progress_bp.route("/health", methods=["GET"])
+def get_root():
+    return jsonify({"message": "Welcome to the 75 Hard tracker API"}), 200
+
 @progress_bp.route("/progress", methods=["GET"])
 def get_progress():
     """Gets all progress data from the database."""
