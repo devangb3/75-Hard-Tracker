@@ -1,8 +1,11 @@
-# 75 Hard Tracker - Modular Architecture
+# Hard Tracker
 
-A comprehensive fitness tracking application for the 75 Hard challenge, built with a modular architecture for maintainability and scalability.
+## Access
 
-## 🏗️ Architecture Overview
+- **Frontend:**  
+  [https://hard-tracker-frontend-75-424176252593.us-west1.run.app/](https://hard-tracker-frontend-75-424176252593.us-west1.run.app/)
+
+## Architecture Overview
 
 ### Backend (Flask + MongoDB)
 ```
@@ -40,7 +43,7 @@ frontend/src/
     └── tasks.js        # Task definitions and icons
 ```
 
-## 🚀 Features
+## Features
 
 - **Daily Task Tracking**: Track 7 daily tasks for the 75 Hard challenge
 - **Water Intake Tracking**: Special UI for tracking water consumption (1 gallon goal)
@@ -49,7 +52,7 @@ frontend/src/
 - **Responsive Design**: Works on desktop and mobile devices
 - **Real-time Updates**: Instant feedback on task completion
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Backend
 - **Flask**: Python web framework
@@ -64,14 +67,14 @@ frontend/src/
 - **Lucide React**: Icon library
 - **Recharts**: Charting library for statistics
 
-## 📋 Prerequisites
+## Prerequisites
 
 - Python 3.8+
 - Node.js 16+
 - MongoDB (running locally or accessible)
 - npm or yarn
 
-## 🔧 Installation & Setup
+## Installation & Setup
 
 ### Backend Setup
 
@@ -120,7 +123,7 @@ frontend/src/
    ```
    The frontend will run on `http://localhost:6896`
 
-## 🏛️ Architecture Benefits
+## Architecture Benefits
 
 ### Backend Modularity
 - **Separation of Concerns**: Database, business logic, and routes are separated
@@ -136,7 +139,7 @@ frontend/src/
 - **Utility Functions**: Reusable helper functions
 - **Constants Management**: Centralized configuration and constants
 
-## 🔄 Data Flow
+## Data Flow
 
 1. **User Interaction** → Component triggers action
 2. **Custom Hook** → Manages state and API calls
@@ -146,32 +149,6 @@ frontend/src/
 6. **Database** → Stores/retrieves data
 7. **Response** → Flows back through the chain to update UI
 
-## 🧪 Testing
-
-### Backend Testing
-```bash
-cd backend
-python -m pytest
-```
-
-### Frontend Testing
-```bash
-cd frontend
-npm test
-```
-
-## 📦 Deployment
-
-### Backend Deployment
-- Configure environment variables for production
-- Use a production WSGI server (Gunicorn)
-- Set up MongoDB connection string
-- Configure CORS origins for production domain
-
-### Frontend Deployment
-- Build the production bundle: `npm run build`
-- Deploy to static hosting (Netlify, Vercel, etc.)
-- Update API base URL for production
 
 ## 🔧 Configuration
 
@@ -190,9 +167,7 @@ REACT_APP_API_BASE_URL=http://localhost:8917
 
 - User authentication and multi-user support
 - Push notifications for daily reminders
-- Social features and sharing
 - Advanced analytics and insights
-- Mobile app development
 - Integration with fitness trackers
 
 ## 🤝 Contributing
