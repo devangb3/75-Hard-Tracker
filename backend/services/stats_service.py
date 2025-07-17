@@ -1,4 +1,5 @@
 from config import Config
+from datetime import datetime
 
 class StatsService:
     """Service for calculating statistics and streaks"""
@@ -30,13 +31,14 @@ class StatsService:
             else:
                 temp_streak = 0
         
-        # Check current streak (from most recent day)
         for day in reversed(sorted_days):
+            today = datetime.now().strftime("%Y-%m-%d")
+            if day['date'] == today and not StatsService.is_day_complete(day):
+                continue
             if StatsService.is_day_complete(day):
                 current_streak += 1
             else:
                 break
-        
         return current_streak, longest_streak
     
     @staticmethod
