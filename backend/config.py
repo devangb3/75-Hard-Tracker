@@ -22,13 +22,13 @@ class Config:
     MONGO_URI = os.getenv('MONGO_URI', "mongodb://localhost:27017/")
     DATABASE_NAME = "seventy_five_hard"
     COLLECTION_NAME = "progress"
-    
+    BUCKET_NAME = os.getenv('BUCKET_NAME', "75-hard-progress-pics")
     # Timezone Configuration
     DEFAULT_TIMEZONE = os.getenv('TIMEZONE', 'UTC')
     
     # Application Constants
     WATER_GOAL_ML = 3785  # 1 gallon in ml
-    HISTORY_DAYS = 30
+    HISTORY_DAYS = 75
     
     # Task Configuration
     TASK_NAMES = {

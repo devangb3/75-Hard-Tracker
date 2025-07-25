@@ -1,12 +1,15 @@
 from config import Config
 from datetime import datetime
+import logging
 
 class StatsService:
     """Service for calculating statistics and streaks"""
+    logger = logging.getLogger('StatsService')
     
     @staticmethod
     def is_day_complete(day):
         """Check if a day is complete based on all tasks"""
+        StatsService.logger.debug(f'Checking if day is complete: {day.get("date", "unknown")}')
         tasks = day["tasks"].copy()
         # Water is complete if >= goal
         if isinstance(tasks.get("drink_gallon_water"), int):
@@ -16,7 +19,9 @@ class StatsService:
     @staticmethod
     def calculate_streaks(all_progress):
         """Calculate current and longest streaks"""
+        StatsService.logger.info('Calculating streaks')
         if not all_progress:
+            StatsService.logger.warning('No progress data for streak calculation')
             return 0, 0
         
         sorted_days = sorted(all_progress, key=lambda x: x["date"])
@@ -44,7 +49,9 @@ class StatsService:
     @staticmethod
     def calculate_task_stats(all_progress):
         """Calculate task-specific statistics"""
+        StatsService.logger.info('Calculating task stats')
         if not all_progress:
+            StatsService.logger.warning('No progress data for task stats')
             return {}
         
         total_days = len(all_progress)
@@ -75,7 +82,9 @@ class StatsService:
     @staticmethod
     def get_comprehensive_stats(all_progress):
         """Get comprehensive statistics for the application"""
+        StatsService.logger.info('Getting comprehensive stats')
         if not all_progress:
+            StatsService.logger.warning('No progress data for comprehensive stats')
             return {
                 "total_days": 0,
                 "completed_days": 0,
