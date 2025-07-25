@@ -151,9 +151,9 @@ def get_all_progress_pics():
             if item.get("progress_pic"):
                 user_id = item.get("user_id")
                 if user_id:
-                    image_url = f"/progress/pic/{item['date']}?user_id={user_id}"
+                    image_url = f"/api/progress/pic/{item['date']}?user_id={user_id}"
                 else:
-                    image_url = f"/progress/pic/{item['date']}"
+                    image_url = f"/api/progress/pic/{item['date']}"
                 result.append({
                     "date": item["date"],
                     "image_url": image_url
