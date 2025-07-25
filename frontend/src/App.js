@@ -5,12 +5,16 @@ import TodayTab from "./components/TodayTab";
 import HistoryTab from "./components/HistoryTab";
 import StatsTab from "./components/StatsTab";
 import LoadingSpinner from "./components/LoadingSpinner";
+import GalleryTab from "./components/GalleryTab";
 import { useProgress } from "./hooks/useProgress";
 import { getLocalDateString } from "./utils/helpers";
+import { progressPicAPI } from "./services/api";
 
 function App() {
   const [date, setDate] = useState(getLocalDateString());
   const [activeTab, setActiveTab] = useState('today');
+  const [galleryPhotos, setGalleryPhotos] = useState([]);
+  const [galleryLoading, setGalleryLoading] = useState(false);
 
   const {
     progress,
@@ -28,6 +32,12 @@ function App() {
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
+    if (tab === 'gallery') {
+      setGalleryLoading(true);
+      progressPicAPI.fetchAll()
+        .then(res => setGalleryPhotos(res.data))
+        .finally(() => setGalleryLoading(false));
+    }
   };
 
   if (loading) {
@@ -59,6 +69,10 @@ function App() {
 
         {activeTab === 'history' && (
           <HistoryTab history={history} />
+        )}
+
+        {activeTab === 'gallery' && (
+          <GalleryTab photos={galleryPhotos} loading={galleryLoading} />
         )}
 
         {activeTab === 'stats' && (

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Target, Flame, Trophy, TrendingUp, Dumbbell } from 'lucide-react';
 import WaterTracker from './WaterTracker';
 import TaskCard from './TaskCard';
@@ -9,8 +9,89 @@ import {
   getRemainingTasks 
 } from '../utils/helpers';
 import { TASK_ICONS, TASK_NAMES } from '../constants/tasks';
+import { progressPicAPI } from '../services/api';
 
 const TodayTab = ({ progress, stats, onTaskChange, onWaterIncrement }) => {
+  const [progressPic, setProgressPic] = useState(null);
+  const [showCamera, setShowCamera] = useState(false);
+  const [cameraLoading, setCameraLoading] = useState(false);
+  const videoRef = useRef();
+  const canvasRef = useRef();
+  let streamRef = useRef();
+  const [pendingTaskClick, setPendingTaskClick] = useState(null);
+
+  useEffect(() => {
+    if (!progress || !progress.date) return;
+    progressPicAPI.fetchByDate(progress.date)
+      .then(res => {
+        if (res.status === 200) {
+          return res.data;
+        }
+        throw new Error('No progress pic');
+      })
+      .then(blob => setProgressPic(URL.createObjectURL(blob)))
+      .catch(() => setProgressPic(null));
+  }, [progress && progress.date]);
+
+  const startCamera = async () => {
+    setCameraLoading(true);
+    setShowCamera(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+      }
+    } catch (err) {
+      alert('Could not access camera.');
+      setShowCamera(false);
+    }
+    setCameraLoading(false);
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    setShowCamera(false);
+    setPendingTaskClick(null);
+  };
+
+  const handleCaptureAndSave = async () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas) return;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob(async (blob) => {
+      if (!blob || !progress || !progress.date) return;
+      try {
+        await progressPicAPI.upload(progress.date, blob);
+        // Re-fetch the uploaded image
+        const res = await progressPicAPI.fetchByDate(progress.date);
+        setProgressPic(URL.createObjectURL(res.data));
+      } catch (e) {
+        setProgressPic(null);
+      }
+      stopCamera();
+      // Mark the task as completed
+      if (pendingTaskClick) onTaskChange(pendingTaskClick);
+    }, 'image/jpeg');
+  };
+
+  const handleTaskClick = (task) => {
+    if (task === 'take_progress_pic') {
+      setPendingTaskClick(task);
+      startCamera();
+    } else {
+      onTaskChange(task);
+    }
+  };
+
   if (!progress || !progress.tasks) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -50,7 +131,6 @@ const TodayTab = ({ progress, stats, onTaskChange, onWaterIncrement }) => {
             progress={progress} 
             onWaterIncrement={onWaterIncrement} 
           />
-          
           {/* Other tasks */}
           {Object.entries(progress.tasks)
             .filter(([task]) => task !== 'drink_gallon_water')
@@ -59,11 +139,36 @@ const TodayTab = ({ progress, stats, onTaskChange, onWaterIncrement }) => {
                 key={task}
                 task={task}
                 completed={completed}
-                onClick={() => onTaskChange(task)}
+                onClick={() => handleTaskClick(task)}
               />
             ))}
         </div>
       </div>
+
+      {/* Camera Modal for Progress Pic */}
+      {showCamera && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center z-50">
+          <div className="bg-white p-4 rounded-lg flex flex-col items-center">
+            <video ref={videoRef} autoPlay playsInline className="w-64 h-64 object-cover rounded mb-2" />
+            <canvas ref={canvasRef} style={{ display: 'none' }} />
+            <div className="flex gap-4 mt-2">
+              <button
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                onClick={handleCaptureAndSave}
+                disabled={cameraLoading}
+              >
+                Save
+              </button>
+              <button
+                className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+                onClick={stopCamera}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Remaining Tasks */}
       {remainingTasks.length > 0 && (
