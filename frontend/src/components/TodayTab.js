@@ -12,7 +12,6 @@ import { TASK_ICONS, TASK_NAMES } from '../constants/tasks';
 import { progressPicAPI } from '../services/api';
 
 const TodayTab = ({ progress, stats, onTaskChange, onWaterIncrement }) => {
-  const [progressPic, setProgressPic] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
   const [cameraLoading, setCameraLoading] = useState(false);
   const videoRef = useRef();
@@ -28,10 +27,8 @@ const TodayTab = ({ progress, stats, onTaskChange, onWaterIncrement }) => {
           return res.data;
         }
         throw new Error('No progress pic');
-      })
-      .then(blob => setProgressPic(URL.createObjectURL(blob)))
-      .catch(() => setProgressPic(null));
-  }, [progress && progress.date]);
+      });
+  }, [progress, progress?.date]);
 
   const startCamera = async () => {
     setCameraLoading(true);
@@ -71,14 +68,11 @@ const TodayTab = ({ progress, stats, onTaskChange, onWaterIncrement }) => {
       if (!blob || !progress || !progress.date) return;
       try {
         await progressPicAPI.upload(progress.date, blob);
-        // Re-fetch the uploaded image
-        const res = await progressPicAPI.fetchByDate(progress.date);
-        setProgressPic(URL.createObjectURL(res.data));
+        await progressPicAPI.fetchByDate(progress.date);
       } catch (e) {
-        setProgressPic(null);
+        alert('Failed to upload progress pic');
       }
       stopCamera();
-      // Mark the task as completed
       if (pendingTaskClick) onTaskChange(pendingTaskClick);
     }, 'image/jpeg');
   };
