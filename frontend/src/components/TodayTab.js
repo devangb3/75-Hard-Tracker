@@ -26,6 +26,9 @@ const TodayTab = ({ progress, stats, onTaskChange, onWaterIncrement }) => {
         if (res.status === 200) {
           return res.data;
         }
+        if(res.status === 204) {
+          return null;
+        }
         throw new Error('No progress pic');
       });
   }, [progress, progress?.date]);

@@ -8,7 +8,6 @@ from werkzeug.exceptions import HTTPException
 
 def create_app():
     """Application factory pattern"""
-    # Configure logging
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s %(levelname)s %(name)s: %(message)s',
@@ -17,17 +16,14 @@ def create_app():
     logger.info('Starting Flask application')
     app = Flask(__name__)
     
-    # Configure CORS
     CORS(app, 
          origins=Config.CORS_ORIGINS,
          methods=Config.CORS_METHODS,
          allow_headers=Config.CORS_HEADERS,
          supports_credentials=Config.CORS_SUPPORTS_CREDENTIALS)
     
-    # Register blueprints
     app.register_blueprint(progress_bp, url_prefix='/api')
 
-    # Global error handler for HTTP exceptions
     @app.errorhandler(HTTPException)
     def handle_http_exception(e):
         response = e.get_response()
@@ -39,7 +35,6 @@ def create_app():
         response.content_type = "application/json"
         return response, e.code
 
-    # Global error handler for uncaught exceptions
     @app.errorhandler(Exception)
     def handle_exception(e):
         logger.error(f"Unhandled Exception: {str(e)}", exc_info=True)

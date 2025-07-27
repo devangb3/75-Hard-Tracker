@@ -123,5 +123,4 @@ class Database:
         pics = self.collection.find({"progress_pic": {"$exists": True, "$ne": None}}, {"date": 1, "progress_pic": 1, "user_id": 1, "_id": 0}).sort("date", -1)
         return list(pics)
 
-# Global database instance
 db = Database() 

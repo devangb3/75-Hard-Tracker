@@ -129,12 +129,12 @@ def get_progress_pic_by_date(date):
     file_name = db.get_progress_pic(date)
     if not file_name:
         logger.warning(f'No progress picture found for user {user_id} on {date}')
-        return jsonify({"error": "No progress picture found", "type": "NotFound"}), 404
+        return '', 204
     try:
         image_bytes = file_service.get_file(file_name)
         if not image_bytes:
             logger.warning(f'No progress picture found for user {user_id} on {date}')
-            return jsonify({"error": "No progress picture found", "type": "NotFound"}), 404
+            return '', 204
         return send_file(BytesIO(image_bytes), mimetype="image/jpeg", download_name=file_name)
     except Exception as e:
         logger.error(f'Error fetching progress picture for user {user_id} on {date}: {str(e)}')
