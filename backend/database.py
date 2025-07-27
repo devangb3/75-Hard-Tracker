@@ -22,7 +22,7 @@ class Database:
         for item in progress:
             item["_id"] = str(item["_id"])
             if "progress_pic" in item:
-                item["progress_pic"] = None  # or base64.b64encode(item["progress_pic"]).decode('utf-8') if you want to send it
+                item["progress_pic"] = None
         return progress
     
     def get_progress_by_date(self, date):
@@ -47,7 +47,6 @@ class Database:
     def update_progress(self, date, tasks):
         """Update progress for a specific date"""
         self.logger.info(f'Updating progress for date: {date}')
-        # Clamp water to goal if present
         if "drink_gallon_water" in tasks:
             val = tasks["drink_gallon_water"]
             if isinstance(val, int):
